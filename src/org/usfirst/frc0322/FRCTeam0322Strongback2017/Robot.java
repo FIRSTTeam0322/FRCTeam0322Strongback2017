@@ -77,6 +77,7 @@ public class Robot extends IterativeRobot {
     	//gyro = Hardware.AngleSensors.gyroscope(GYRO_PORT);
     	VoltageSensor battery = Hardware.powerPanel().getVoltageSensor();
     	CurrentSensor current = Hardware.powerPanel().getTotalCurrentSensor();
+    	imu.calibrate();
     	
     	//Setup drivetrain variables
     	ContinuousRange sensitivity = leftDriveStick.getAxis(2).invert().map(t -> (t + 1.0) / 2.0);
