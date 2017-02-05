@@ -5,7 +5,7 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package com.analog.adis16448.frc;
+package org.usfirst.frc0322.FRCTeam0322Strongback2017;
 
 import java.nio.ByteOrder;
 import java.nio.ByteBuffer;
