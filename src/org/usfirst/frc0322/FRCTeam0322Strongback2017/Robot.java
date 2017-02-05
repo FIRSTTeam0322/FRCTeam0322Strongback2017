@@ -3,10 +3,8 @@ package org.usfirst.frc0322.FRCTeam0322Strongback2017;
 
 import org.strongback.Strongback;
 import org.strongback.SwitchReactor;
-import org.strongback.components.AngleSensor;
 import org.strongback.components.CurrentSensor;
 import org.strongback.components.Motor;
-import org.strongback.components.ThreeAxisAccelerometer;
 import org.strongback.components.VoltageSensor;
 import org.strongback.components.ui.ContinuousRange;
 import org.strongback.components.ui.FlightStick;
@@ -14,14 +12,12 @@ import org.strongback.components.ui.Gamepad;
 import org.strongback.drive.TankDrive;
 import org.strongback.hardware.Hardware;
 
+import com.analog.adis16448.frc.ADIS16448_IMU;
+
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.interfaces.Accelerometer.Range;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import com.analog.adis16448.frc.ADIS16448_IMU;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;;
 
 public class Robot extends IterativeRobot {
 	private static final int LEFT_DRIVESTICK_PORT = 0;
