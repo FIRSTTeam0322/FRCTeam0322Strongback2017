@@ -172,7 +172,9 @@ public class Robot extends IterativeRobot {
     
 	@Override
     public void disabledPeriodic() {
+		if(ds.isFMSAttached() && ds.getMatchTime() <= 0.0 && endOfMatchReady == 1) {
 			try {
+				wait(2500);
 			} catch (InterruptedException e) {
 				liftMotorCAN.enableBrakeMode(true);
 			}
