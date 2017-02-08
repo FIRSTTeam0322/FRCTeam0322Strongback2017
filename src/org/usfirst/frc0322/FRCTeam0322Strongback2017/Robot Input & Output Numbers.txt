@@ -11,8 +11,8 @@ rearLeftMotor = PWM 2
 rearRightMotor = PWM 3
 
 *CHASSIS_SENSORS
-*frontLeftEncoder = Digital I/O 4,5
-*rearLeftEncoder = Digital I/O 6,7
+*leftEncoder = Digital I/O 4,5
+*rightEncoder = Digital I/O 6,7
 
 IMU = MXP
 
