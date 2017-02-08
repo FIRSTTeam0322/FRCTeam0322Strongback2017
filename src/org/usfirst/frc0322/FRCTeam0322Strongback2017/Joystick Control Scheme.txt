@@ -1,0 +1,19 @@
+LEFT_DRIVE_STICK
+LeftDrive = Y-Axis +/- (Tank Drive)
+
+Precision Control = Z-Axis (Throttle) +/-
+*DriveTrain Brake/Coast Control = Button 1 (Trigger)
+
+RIGHT_DRIVE_STICK
+RightDrive = Y-Axis +/- (Tank Drive)
+
+
+MANIPULATOR_STICK
+
+A = Lift Robot
+B = Pickup Balls
+X = Shoot Balls
+Y = Reverse Lift
+RB = Turn off Brake 
+
+* = Not Implemented
