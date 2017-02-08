@@ -12,6 +12,8 @@ import org.strongback.components.ui.Gamepad;
 import org.strongback.drive.TankDrive;
 import org.strongback.hardware.Hardware;
 
+import com.ctre.CANTalon;
+
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -43,6 +45,7 @@ public class Robot extends IterativeRobot {
 	private ContinuousRange leftSpeed, rightSpeed;
 	
 	private SwitchReactor lift, pickup, shooter;
+	private CANTalon liftMotorCAN, shooterMotorCAN;
 	private Motor liftMotor, pickupMotor, shooterMotor;
 	
 	//private ThreeAxisAccelerometer accel;
