@@ -64,8 +64,11 @@ public class Robot extends IterativeRobot {
     	drivetrain = new TankDrive(leftDriveMotors.invert(), rightDriveMotors);
 
     	//Setup Manipulators
-    	liftMotor = Hardware.Motors.talonSRX(LIFT_MOTOR_CAN);
-    	shooterMotor = Hardware.Motors.talonSRX(SHOOTER_MOTOR_CAN);
+    	liftMotorCAN = new CANTalon(LIFT_MOTOR_CAN);
+    	shooterMotorCAN = new CANTalon(SHOOTER_MOTOR_CAN);
+    	
+    	liftMotor = Hardware.Motors.talonSRX(liftMotorCAN);
+    	shooterMotor = Hardware.Motors.talonSRX(shooterMotorCAN);
     	pickupMotor = Hardware.Motors.talon(PICKUP_MOTOR_PORT);
     	
     	//Setup joysticks
@@ -140,7 +143,7 @@ public class Robot extends IterativeRobot {
     	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor)));
     	shooter.onUntriggered(manipulatorStick.getX(), ()->Strongback.submit(new StopShooterMotor(shooterMotor)));
 
-    	SmartDashboard.putData("IMU", imu);
+    	dashboardOutput();
     	debugPrint();
     }
 
@@ -167,6 +170,10 @@ public class Robot extends IterativeRobot {
     	System.out.println("Pressure  " + imu.getBarometricPressure());
     	System.out.println();
     	System.out.println();
+	}
+	
+	public void dashboardOutput() {
+		SmartDashboard.putData("IMU", imu);
 	}
 
 }
