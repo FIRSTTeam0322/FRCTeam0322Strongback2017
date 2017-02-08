@@ -16,6 +16,7 @@ import com.ctre.CANTalon;
 
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;;
 
@@ -44,9 +45,13 @@ public class Robot extends IterativeRobot {
 	private TankDrive drivetrain;
 	private ContinuousRange leftSpeed, rightSpeed;
 	
-	private SwitchReactor lift, pickup, shooter;
+	private SwitchReactor lift, pickup, shooter, liftbrake;
 	private CANTalon liftMotorCAN, shooterMotorCAN;
 	private Motor liftMotor, pickupMotor, shooterMotor;
+	
+	private DriverStation ds;
+	
+	private int endOfMatchReady;
 	
 	//private ThreeAxisAccelerometer accel;
 	//private AngleSensor gyro;
@@ -93,6 +98,9 @@ public class Robot extends IterativeRobot {
     	lift = Strongback.switchReactor();
     	pickup = Strongback.switchReactor();
     	shooter = Strongback.switchReactor();
+    	liftbrake = Strongback.switchReactor();    	
+    	
+    	endOfMatchReady = 0;
     	
     	//Setup Camera
     	cameraServer = CameraServer.getInstance().startAutomaticCapture();
@@ -117,13 +125,15 @@ public class Robot extends IterativeRobot {
     
 	@Override
     public void autonomousPeriodic() {
-    	debugPrint();
+		dashboardOutput();
+		debugPrint();
     }
     
     @Override
     public void teleopInit() {
         // Start Strongback functions ...
         Strongback.start();
+        liftMotorCAN.enableBrakeMode(true);
     }
 
     @Override
@@ -134,6 +144,10 @@ public class Robot extends IterativeRobot {
     	//This section controls the lift
     	lift.onTriggered(manipulatorStick.getA(), ()->Strongback.submit(new RunLiftMotor(liftMotor)));
     	lift.onUntriggered(manipulatorStick.getA(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
+    	lift.onTriggered(manipulatorStick.getY(), ()->Strongback.submit(new ReverseLiftMotor(liftMotor)));
+    	lift.onUntriggered(manipulatorStick.getY(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
+    	liftbrake.onTriggered(manipulatorStick.getRightBumper(), ()->Strongback.submit(new LiftBrakeOn(liftMotorCAN)));
+    	liftbrake.onUntriggered(manipulatorStick.getRightBumper(), ()->Strongback.submit(new LiftBrakeOff(liftMotorCAN)));
     	
     	//This section controls the pickup mechanism
     	pickup.onTriggered(manipulatorStick.getB(), ()->Strongback.submit(new RunPickupMotor(pickupMotor)));
@@ -143,6 +157,8 @@ public class Robot extends IterativeRobot {
     	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor)));
     	shooter.onUntriggered(manipulatorStick.getX(), ()->Strongback.submit(new StopShooterMotor(shooterMotor)));
 
+    	endOfMatchReady = 1;
+    	
     	dashboardOutput();
     	debugPrint();
     }
@@ -156,6 +172,13 @@ public class Robot extends IterativeRobot {
     
 	@Override
     public void disabledPeriodic() {
+			try {
+			} catch (InterruptedException e) {
+				liftMotorCAN.enableBrakeMode(true);
+			}
+		}
+		liftMotorCAN.enableBrakeMode(false);
+		dashboardOutput();
 		debugPrint();
     }
 	
