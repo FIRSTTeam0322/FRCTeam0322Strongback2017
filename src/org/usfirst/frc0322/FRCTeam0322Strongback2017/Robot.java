@@ -172,12 +172,12 @@ public class Robot extends IterativeRobot {
     		break;
     	case 1:
     		{
-    			//Strongback.submit(new DriveForward(drivetrain, AUTON_SPEED));
+    			Strongback.submit(new DriveBackward(drivetrain, AUTON_SPEED));
     		}
     		break;
     	case 2:
     		{
-        		//Strongback.submit(new DriveBackward(drivetrain, AUTON_SPEED));
+    			Strongback.submit(new DriveForward(drivetrain, AUTON_SPEED));
         	}
     		break;
     	default:
