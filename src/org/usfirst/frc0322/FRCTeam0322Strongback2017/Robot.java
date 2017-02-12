@@ -208,8 +208,8 @@ public class Robot extends IterativeRobot {
     @Override
     public void teleopPeriodic() {
     	//This line runs the drivetrain
-    	drivetrain.tank(leftSpeed.read(), rightSpeed.read());
-    	//drivetrain.arcade(driveSpeed.read(), turnSpeed.read());
+    	//drivetrain.tank(leftSpeed.read(), rightSpeed.read());
+    	drivetrain.arcade(driveSpeed.read(), turnSpeed.read());
 
     	//This section controls the lift
     	lift.onTriggered(manipulatorStick.getA(), ()->Strongback.submit(new RunLiftMotor(liftMotor)));
