@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends IterativeRobot {
 	private static int AUTON_MODE = 0;
 	private static double AUTON_SPEED = 0.60;
-	private static final double AUTON_DISTANCE = 5000.0;
+	private static final double AUTON_DISTANCE = 60.0;
 	
 	private static final int LEFT_DRIVESTICK_PORT = 0;
 	private static final int RIGHT_DRIVESTICK_PORT = 1;
@@ -43,7 +43,12 @@ public class Robot extends IterativeRobot {
 	private static final int LEFT_ENCOODER_PORT_B = 1;
 	private static final int RIGHT_ENCOODER_PORT_A = 2;
 	private static final int RIGHT_ENCOODER_PORT_B = 3;
-	private static final double ENCOODER_PULSE_DISTANCE = 1.0;
+	
+	public static final double WHEEL_DIAMETER = 6;
+	public static final double PULSE_PER_REVOLUTION = 360.0;
+	public static final double ENCODER_GEAR_RATIO = 1.0;
+	public static final double GEAR_RATIO = 10.71 / 1.0;
+	public static final double FUDGE_FACTOR = 1.0;
 
 	private static final int AUTON_SWITCH_1 = 4;
 	private static final int AUTON_SWITCH_2 = 5;
@@ -51,14 +56,9 @@ public class Robot extends IterativeRobot {
 	private static final int AUTON_SWITCH_4 = 7;
 	
 	private static final int AUTON_SPEED_SWITCH = 0;
-
-	/*
-	private static final SPI.Port GYRO_PORT = SPI.Port.kOnboardCS0;
-	private static final SPI.Port ACCEL_PORT = SPI.Port.kOnboardCS1;
-	private static final Range ACCEL_RANGE = Range.k2G;
-	*/
 	
 	private static boolean stepOneComplete, stepTwoComplete, stepThreeComplete;
+	private static double encoderPulseDistance;
 	
 	private FlightStick leftDriveStick, rightDriveStick;
 	private Gamepad manipulatorStick;
@@ -74,8 +74,6 @@ public class Robot extends IterativeRobot {
 	
 	private int endOfMatchReady;
 	
-	//private ThreeAxisAccelerometer accel;
-	//private AngleSensor gyro;
 	private ADIS16448_IMU imu;
 	
 	private AngleSensor leftEncoder;
@@ -112,13 +110,12 @@ public class Robot extends IterativeRobot {
     	
     	//Setup sensors
     	imu = new ADIS16448_IMU();
-    	//accel = Hardware.Accelerometers.accelerometer(ACCEL_PORT, ACCEL_RANGE);
-    	//gyro = Hardware.AngleSensors.gyroscope(GYRO_PORT);
-    	leftEncoder = Hardware.AngleSensors.encoder(LEFT_ENCOODER_PORT_A, LEFT_ENCOODER_PORT_B, ENCOODER_PULSE_DISTANCE);
-    	rightEncoder = Hardware.AngleSensors.encoder(RIGHT_ENCOODER_PORT_A, RIGHT_ENCOODER_PORT_B, ENCOODER_PULSE_DISTANCE);
+    	imu.calibrate();
+    	final double encoderPulseDistance = Math.PI * WHEEL_DIAMETER / PULSE_PER_REVOLUTION / ENCODER_GEAR_RATIO / GEAR_RATIO * FUDGE_FACTOR;
+    	leftEncoder = Hardware.AngleSensors.encoder(LEFT_ENCOODER_PORT_A, LEFT_ENCOODER_PORT_B, encoderPulseDistance);
+    	rightEncoder = Hardware.AngleSensors.encoder(RIGHT_ENCOODER_PORT_A, RIGHT_ENCOODER_PORT_B, encoderPulseDistance);
     	VoltageSensor battery = Hardware.powerPanel().getVoltageSensor();
     	CurrentSensor current = Hardware.powerPanel().getTotalCurrentSensor();
-    	imu.calibrate();
     	
     	//Setup drivetrain variables
     	ContinuousRange sensitivity = leftDriveStick.getAxis(2).invert().map(t -> (t + 1.0) / 2.0);
@@ -135,7 +132,6 @@ public class Robot extends IterativeRobot {
     	autonSwitch2 = Hardware.Switches.normallyOpen(AUTON_SWITCH_2);
     	autonSwitch3 = Hardware.Switches.normallyOpen(AUTON_SWITCH_3);
     	autonSwitch4 = Hardware.Switches.normallyOpen(AUTON_SWITCH_4);
-    	
     	autonSpeed = Hardware.AngleSensors.potentiometer(AUTON_SPEED_SWITCH, 54.0);
     	
     	//Setup Autonomous Variables
