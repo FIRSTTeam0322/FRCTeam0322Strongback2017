@@ -20,10 +20,10 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends IterativeRobot {
-	private static int AUTON_MODE = 2;
+	private static int AUTON_MODE = 0;
 	private static double AUTON_SPEED = 0.60;
 	private static final double AUTON_DISTANCE = 5000.0;
 	
@@ -114,6 +114,8 @@ public class Robot extends IterativeRobot {
     	imu = new ADIS16448_IMU();
     	//accel = Hardware.Accelerometers.accelerometer(ACCEL_PORT, ACCEL_RANGE);
     	//gyro = Hardware.AngleSensors.gyroscope(GYRO_PORT);
+    	leftEncoder = Hardware.AngleSensors.encoder(LEFT_ENCOODER_PORT_A, LEFT_ENCOODER_PORT_B, ENCOODER_PULSE_DISTANCE);
+    	rightEncoder = Hardware.AngleSensors.encoder(RIGHT_ENCOODER_PORT_A, RIGHT_ENCOODER_PORT_B, ENCOODER_PULSE_DISTANCE);
     	VoltageSensor battery = Hardware.powerPanel().getVoltageSensor();
     	CurrentSensor current = Hardware.powerPanel().getTotalCurrentSensor();
     	imu.calibrate();
@@ -171,14 +173,24 @@ public class Robot extends IterativeRobot {
     	case 0: Strongback.submit(new DoNothing());
     		break;
     	case 1:
-    		{
-    			Strongback.submit(new DriveBackward(drivetrain, AUTON_SPEED));
+    		if (Math.abs(leftEncoder.getAngle()) < AUTON_DISTANCE ||
+    				Math.abs(rightEncoder.getAngle()) < AUTON_DISTANCE) {
+        		Strongback.submit(new DriveBackward(drivetrain, AUTON_SPEED));
+        	}
+    		else {
+    			drivetrain.stop();
+    			Strongback.submit(new DoNothing());
     		}
     		break;
     	case 2:
-    		{
-    			Strongback.submit(new DriveForward(drivetrain, AUTON_SPEED));
-        	}
+    		if (Math.abs(leftEncoder.getAngle()) < AUTON_DISTANCE ||
+    				Math.abs(rightEncoder.getAngle()) < AUTON_DISTANCE) {
+        		Strongback.submit(new DriveForward(drivetrain, AUTON_SPEED));
+        	} 
+    		else {
+    			drivetrain.stop();
+    			Strongback.submit(new DoNothing());
+    		}
     		break;
     	default:
     		Strongback.submit(new DoNothing());
