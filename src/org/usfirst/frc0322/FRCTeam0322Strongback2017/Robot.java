@@ -64,7 +64,7 @@ public class Robot extends IterativeRobot {
 	private Gamepad manipulatorStick;
 	
 	private TankDrive drivetrain;
-	private ContinuousRange leftSpeed, rightSpeed;
+	private ContinuousRange leftSpeed, rightSpeed, driveSpeed, turnSpeed;
 	
 	private SwitchReactor lift, pickup, shooter, liftbrake;
 	private CANTalon liftMotorCAN, shooterMotorCAN;
@@ -119,8 +119,10 @@ public class Robot extends IterativeRobot {
     	
     	//Setup drivetrain variables
     	ContinuousRange sensitivity = leftDriveStick.getAxis(2).invert().map(t -> (t + 1.0) / 2.0);
-    	leftSpeed = leftDriveStick.getPitch().scale(sensitivity::read);
-    	rightSpeed = rightDriveStick.getPitch().scale(sensitivity::read);
+    	//leftSpeed = leftDriveStick.getPitch().scale(sensitivity::read);
+    	//rightSpeed = rightDriveStick.getPitch().scale(sensitivity::read);
+    	driveSpeed = leftDriveStick.getPitch().scale(sensitivity::read);
+    	turnSpeed = leftDriveStick.getRoll().scale(sensitivity::read);
     	
     	//Setup Switches
     	lift = Strongback.switchReactor();
@@ -192,7 +194,7 @@ public class Robot extends IterativeRobot {
     		Strongback.submit(new DoNothing());
     		break;
     	}    	
-		dashboardOutput();
+		updateDashboard();
 		debugPrint();
     }
     
@@ -207,6 +209,7 @@ public class Robot extends IterativeRobot {
     public void teleopPeriodic() {
     	//This line runs the drivetrain
     	drivetrain.tank(leftSpeed.read(), rightSpeed.read());
+    	//drivetrain.arcade(driveSpeed.read(), turnSpeed.read());
 
     	//This section controls the lift
     	lift.onTriggered(manipulatorStick.getA(), ()->Strongback.submit(new RunLiftMotor(liftMotor)));
@@ -226,7 +229,7 @@ public class Robot extends IterativeRobot {
 
     	endOfMatchReady = 1;
     	
-    	dashboardOutput();
+    	updateDashboard();
     	debugPrint();
     }
 
@@ -252,7 +255,7 @@ public class Robot extends IterativeRobot {
 			System.err.println(n);
 		}
 		liftMotorCAN.enableBrakeMode(false);
-		dashboardOutput();
+		updateDashboard();
 		debugPrint();
     }
 	
@@ -269,8 +272,19 @@ public class Robot extends IterativeRobot {
     	System.out.println();
 	}
 	
-	public void dashboardOutput() {
+	public void updateDashboard() {
 		SmartDashboard.putData("IMU", imu);
+		/*
+		SmartDashboard.putNumber("Gyro Angle", imu.getAngle());
+		SmartDashboard.putNumber("X-Axis Acceleration", imu.getAccelX());
+		SmartDashboard.putNumber("Y-Axis Acceleration", imu.getAccelY());
+		SmartDashboard.putNumber("Z-Axis Acceleration", imu.getAccelZ());
+		SmartDashboard.putNumber("Temperature", imu.getTemperature());
+		SmartDashboard.putNumber("Pressure", imu.getBarometricPressure());
+		*/
+		SmartDashboard.putNumber("Left Distance", leftEncoder.getAngle());
+		SmartDashboard.putNumber("Right Distance", rightEncoder.getAngle());
+		SmartDashboard.putBoolean("Lift Brake", liftMotorCAN.getBrakeEnableDuringNeutral());
 	}
 
 }
