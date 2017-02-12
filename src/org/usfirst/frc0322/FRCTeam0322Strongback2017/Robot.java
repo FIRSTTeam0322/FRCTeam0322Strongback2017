@@ -3,8 +3,10 @@ package org.usfirst.frc0322.FRCTeam0322Strongback2017;
 
 import org.strongback.Strongback;
 import org.strongback.SwitchReactor;
+import org.strongback.components.AngleSensor;
 import org.strongback.components.CurrentSensor;
 import org.strongback.components.Motor;
+import org.strongback.components.Switch;
 import org.strongback.components.VoltageSensor;
 import org.strongback.components.ui.ContinuousRange;
 import org.strongback.components.ui.FlightStick;
@@ -21,6 +23,10 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;;
 
 public class Robot extends IterativeRobot {
+	private static int AUTON_MODE = 2;
+	private static double AUTON_SPEED = 0.60;
+	private static final double AUTON_DISTANCE = 5000.0;
+	
 	private static final int LEFT_DRIVESTICK_PORT = 0;
 	private static final int RIGHT_DRIVESTICK_PORT = 1;
 	private static final int MANIPULATOR_STICK_PORT = 2;
@@ -33,11 +39,26 @@ public class Robot extends IterativeRobot {
 	private static final int LIFT_MOTOR_CAN = 1;
 	private static final int SHOOTER_MOTOR_CAN = 2;
 	
+	private static final int LEFT_ENCOODER_PORT_A = 0;
+	private static final int LEFT_ENCOODER_PORT_B = 1;
+	private static final int RIGHT_ENCOODER_PORT_A = 2;
+	private static final int RIGHT_ENCOODER_PORT_B = 3;
+	private static final double ENCOODER_PULSE_DISTANCE = 1.0;
+
+	private static final int AUTON_SWITCH_1 = 4;
+	private static final int AUTON_SWITCH_2 = 5;
+	private static final int AUTON_SWITCH_3 = 6;
+	private static final int AUTON_SWITCH_4 = 7;
+	
+	private static final int AUTON_SPEED_SWITCH = 0;
+
 	/*
 	private static final SPI.Port GYRO_PORT = SPI.Port.kOnboardCS0;
 	private static final SPI.Port ACCEL_PORT = SPI.Port.kOnboardCS1;
 	private static final Range ACCEL_RANGE = Range.k2G;
 	*/
+	
+	private static boolean stepOneComplete, stepTwoComplete, stepThreeComplete;
 	
 	private FlightStick leftDriveStick, rightDriveStick;
 	private Gamepad manipulatorStick;
@@ -56,6 +77,14 @@ public class Robot extends IterativeRobot {
 	//private ThreeAxisAccelerometer accel;
 	//private AngleSensor gyro;
 	private ADIS16448_IMU imu;
+	
+	private AngleSensor leftEncoder;
+	private AngleSensor rightEncoder;
+	private AngleSensor autonSpeed;
+	
+	private Switch autonSwitch1, autonSwitch2, autonSwitch3, autonSwitch4;
+	private int autonModeTemp = 0;
+	
 	
 	public static UsbCamera cameraServer;
 
@@ -100,6 +129,19 @@ public class Robot extends IterativeRobot {
     	shooter = Strongback.switchReactor();
     	liftbrake = Strongback.switchReactor();    	
     	
+    	autonSwitch1 = Hardware.Switches.normallyOpen(AUTON_SWITCH_1);
+    	autonSwitch2 = Hardware.Switches.normallyOpen(AUTON_SWITCH_2);
+    	autonSwitch3 = Hardware.Switches.normallyOpen(AUTON_SWITCH_3);
+    	autonSwitch4 = Hardware.Switches.normallyOpen(AUTON_SWITCH_4);
+    	
+    	autonSpeed = Hardware.AngleSensors.potentiometer(AUTON_SPEED_SWITCH, 54.0);
+    	
+    	//Setup Autonomous Variables
+    	stepOneComplete = false;
+    	stepTwoComplete = false;
+    	stepThreeComplete = false;
+    	
+    	//Setup Other Variables
     	endOfMatchReady = 0;
     	
     	//Setup Camera
@@ -125,6 +167,23 @@ public class Robot extends IterativeRobot {
     
 	@Override
     public void autonomousPeriodic() {
+    	switch(AUTON_MODE) {
+    	case 0: Strongback.submit(new DoNothing());
+    		break;
+    	case 1:
+    		{
+    			//Strongback.submit(new DriveForward(drivetrain, AUTON_SPEED));
+    		}
+    		break;
+    	case 2:
+    		{
+        		//Strongback.submit(new DriveBackward(drivetrain, AUTON_SPEED));
+        	}
+    		break;
+    	default:
+    		Strongback.submit(new DoNothing());
+    		break;
+    	}    	
 		dashboardOutput();
 		debugPrint();
     }
