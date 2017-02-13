@@ -3,6 +3,7 @@ package org.usfirst.frc0322.FRCTeam0322Strongback2017;
 
 import org.strongback.Strongback;
 import org.strongback.SwitchReactor;
+import org.strongback.command.Command;
 import org.strongback.components.AngleSensor;
 import org.strongback.components.CurrentSensor;
 import org.strongback.components.Motor;
@@ -20,6 +21,7 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends IterativeRobot {
@@ -83,6 +85,8 @@ public class Robot extends IterativeRobot {
 	private Switch autonSwitch1, autonSwitch2, autonSwitch3, autonSwitch4;
 	private int autonModeTemp = 0;
 	
+	Command autonomousCommand;
+	SendableChooser autoChooser;
 	
 	public static UsbCamera cameraServer;
 
@@ -130,13 +134,17 @@ public class Robot extends IterativeRobot {
     	shooter = Strongback.switchReactor();
     	liftbrake = Strongback.switchReactor();    	
     	
+    	//Setup Autonomous Variables
+    	autoChooser = new SendableChooser();
+    	autoChooser.addDefault("Default Program", new DoNothing());
+    	autoChooser.addObject("Drive Backward", new DriveBackward(drivetrain, AUTON_SPEED));
+    	autoChooser.addObject("Drive Forward", new DriveForward(drivetrain, AUTON_SPEED));
+    	SmartDashboard.putData("Autonomous Mode Chooser", autoChooser);
     	autonSwitch1 = Hardware.Switches.normallyOpen(AUTON_SWITCH_1);
     	autonSwitch2 = Hardware.Switches.normallyOpen(AUTON_SWITCH_2);
     	autonSwitch3 = Hardware.Switches.normallyOpen(AUTON_SWITCH_3);
     	autonSwitch4 = Hardware.Switches.normallyOpen(AUTON_SWITCH_4);
     	autonSpeed = Hardware.AngleSensors.potentiometer(AUTON_SPEED_SWITCH, 54.0);
-    	
-    	//Setup Autonomous Variables
     	stepOneComplete = false;
     	stepTwoComplete = false;
     	stepThreeComplete = false;
@@ -163,11 +171,13 @@ public class Robot extends IterativeRobot {
     public void autonomousInit() {
         // Start Strongback functions ...
         Strongback.start();
+        autonomousCommand = (Command) autoChooser.getSelected();
+        autonomousCommand.execute();
     }
     
 	@Override
     public void autonomousPeriodic() {
-    	switch(AUTON_MODE) {
+    	/*switch(AUTON_MODE) {
     	case 0: Strongback.submit(new DoNothing());
     		break;
     	case 1:
@@ -193,7 +203,7 @@ public class Robot extends IterativeRobot {
     	default:
     		Strongback.submit(new DoNothing());
     		break;
-    	}    	
+    	}*/   	
 		updateDashboard();
 		debugPrint();
     }
