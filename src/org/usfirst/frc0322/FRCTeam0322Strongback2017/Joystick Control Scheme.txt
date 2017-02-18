@@ -11,9 +11,10 @@ RightDrive = Y-Axis +/- (Tank Drive)
 MANIPULATOR_STICK
 
 A = Lift Robot
-B = Pickup Balls
+B = Stop Shooter
 X = Shoot Balls
 Y = Reverse Lift
+LB = Pickup Balls
 RB = Turn off Brake 
 
 * = Not Implemented

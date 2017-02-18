@@ -123,10 +123,10 @@ public class Robot extends IterativeRobot {
     	
     	//Setup drivetrain variables
     	ContinuousRange sensitivity = leftDriveStick.getAxis(2).invert().map(t -> (t + 1.0) / 2.0);
-    	//leftSpeed = leftDriveStick.getPitch().scale(sensitivity::read);
-    	//rightSpeed = rightDriveStick.getPitch().scale(sensitivity::read);
-    	driveSpeed = leftDriveStick.getPitch().scale(sensitivity::read);
-    	turnSpeed = leftDriveStick.getRoll().scale(sensitivity::read);
+    	leftSpeed = leftDriveStick.getPitch().scale(sensitivity::read);
+    	rightSpeed = rightDriveStick.getPitch().scale(sensitivity::read);
+    	//driveSpeed = leftDriveStick.getPitch().scale(sensitivity::read);
+    	//turnSpeed = leftDriveStick.getRoll().scale(sensitivity::read);
     	
     	//Setup Switches
     	lift = Strongback.switchReactor();
@@ -155,14 +155,14 @@ public class Robot extends IterativeRobot {
     	//Setup Camera
     	cameraServer = CameraServer.getInstance().startAutomaticCapture();
     	
-    	Strongback.dataRecorder()
+    	/*Strongback.dataRecorder()
 		.register("Battery Volts", 1000, battery::getVoltage)
 		.register("Current load", 1000, current::getCurrent)
 		.register("Left Motors", leftDriveMotors)
 		.register("Right Motors", rightDriveMotors)
 		.register("LeftDriveStick", 1000, leftSpeed::read)
 		.register("RightDriveStick", 1000, rightSpeed::read)
-		.register("Drive Sensitivity", 1000, sensitivity::read);
+		.register("Drive Sensitivity", 1000, sensitivity::read);*/
         
     	//Strongback.configure().recordNoEvents().recordDataToFile("FRC0322Java-");
     	Strongback.configure().recordNoEvents().recordNoData();
@@ -218,8 +218,8 @@ public class Robot extends IterativeRobot {
     @Override
     public void teleopPeriodic() {
     	//This line runs the drivetrain
-    	//drivetrain.tank(leftSpeed.read(), rightSpeed.read());
-    	drivetrain.arcade(driveSpeed.read(), turnSpeed.read());
+    	drivetrain.tank(leftSpeed.read(), rightSpeed.read());
+    	//drivetrain.arcade(driveSpeed.read(), turnSpeed.read());
 
     	//This section controls the lift
     	lift.onTriggered(manipulatorStick.getA(), ()->Strongback.submit(new RunLiftMotor(liftMotor)));
@@ -230,12 +230,12 @@ public class Robot extends IterativeRobot {
     	liftbrake.onUntriggered(manipulatorStick.getRightBumper(), ()->Strongback.submit(new LiftBrakeOn(liftMotorCAN)));
     	
     	//This section controls the pickup mechanism
-    	pickup.onTriggered(manipulatorStick.getB(), ()->Strongback.submit(new RunPickupMotor(pickupMotor)));
-    	pickup.onUntriggered(manipulatorStick.getB(), ()->Strongback.submit(new StopPickupMotor(pickupMotor)));
+    	pickup.onTriggered(manipulatorStick.getLeftBumper(), ()->Strongback.submit(new RunPickupMotor(pickupMotor)));
+    	pickup.onUntriggered(manipulatorStick.getLeftBumper(), ()->Strongback.submit(new StopPickupMotor(pickupMotor)));
     	
     	//This section controls the shooter mechanism
     	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor)));
-    	shooter.onUntriggered(manipulatorStick.getX(), ()->Strongback.submit(new StopShooterMotor(shooterMotor)));
+    	shooter.onTriggered(manipulatorStick.getB(), ()->Strongback.submit(new StopShooterMotor(shooterMotor)));
 
     	endOfMatchReady = 1;
     	
@@ -283,15 +283,14 @@ public class Robot extends IterativeRobot {
 	}
 	
 	public void updateDashboard() {
-		SmartDashboard.putData("IMU", imu);
-		/*
+		//SmartDashboard.putData("IMU", imu);
+		
 		SmartDashboard.putNumber("Gyro Angle", imu.getAngle());
 		SmartDashboard.putNumber("X-Axis Acceleration", imu.getAccelX());
 		SmartDashboard.putNumber("Y-Axis Acceleration", imu.getAccelY());
 		SmartDashboard.putNumber("Z-Axis Acceleration", imu.getAccelZ());
 		SmartDashboard.putNumber("Temperature", imu.getTemperature());
 		SmartDashboard.putNumber("Pressure", imu.getBarometricPressure());
-		*/
 		SmartDashboard.putNumber("Left Distance", leftEncoder.getAngle());
 		SmartDashboard.putNumber("Right Distance", rightEncoder.getAngle());
 		SmartDashboard.putBoolean("Lift Brake", liftMotorCAN.getBrakeEnableDuringNeutral());
