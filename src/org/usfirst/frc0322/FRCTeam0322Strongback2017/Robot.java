@@ -37,6 +37,9 @@ public class Robot extends IterativeRobot {
 	private static final int LR_MOTOR_PORT = 2;
 	private static final int RR_MOTOR_PORT = 3;
 	private static final int PICKUP_MOTOR_PORT = 4;
+	private static final int AGITATOR_MOTOR_PORT = 5;
+	private static final int INDEX_MOTOR_PORT = 6;
+	
 	
 	private static final int LIFT_MOTOR_CAN = 1;
 	private static final int SHOOTER_MOTOR_CAN = 2;
@@ -70,7 +73,7 @@ public class Robot extends IterativeRobot {
 	
 	private SwitchReactor lift, pickup, shooter, liftbrake;
 	private CANTalon liftMotorCAN, shooterMotorCAN;
-	private Motor liftMotor, pickupMotor, shooterMotor;
+	private Motor liftMotor, pickupMotor, shooterMotor, agitatorMotor, indexMotor;
 	
 	private DriverStation ds;
 	
@@ -106,6 +109,8 @@ public class Robot extends IterativeRobot {
     	liftMotor = Hardware.Motors.talonSRX(liftMotorCAN);
     	shooterMotor = Hardware.Motors.talonSRX(shooterMotorCAN);
     	pickupMotor = Hardware.Motors.talon(PICKUP_MOTOR_PORT);
+    	agitatorMotor = Hardware.Motors.talon(AGITATOR_MOTOR_PORT);
+    	indexMotor = Hardware.Motors.talon(INDEX_MOTOR_PORT);
     	
     	//Setup joysticks
     	leftDriveStick = Hardware.HumanInterfaceDevices.logitechAttack3D(LEFT_DRIVESTICK_PORT);
@@ -234,8 +239,8 @@ public class Robot extends IterativeRobot {
     	pickup.onUntriggered(manipulatorStick.getLeftBumper(), ()->Strongback.submit(new StopPickupMotor(pickupMotor)));
     	
     	//This section controls the shooter mechanism
-    	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor)));
-    	shooter.onTriggered(manipulatorStick.getB(), ()->Strongback.submit(new StopShooterMotor(shooterMotor)));
+    	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor, agitatorMotor)));
+    	shooter.onTriggered(manipulatorStick.getB(), ()->Strongback.submit(new StopShooterMotor(shooterMotor, agitatorMotor)));
 
     	endOfMatchReady = 1;
     	
