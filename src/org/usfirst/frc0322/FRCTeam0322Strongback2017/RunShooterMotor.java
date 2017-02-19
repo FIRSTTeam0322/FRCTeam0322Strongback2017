@@ -15,7 +15,7 @@ public class RunShooterMotor extends Command {
 	
 	@Override
 	public boolean execute() {
-		this.motor.setSpeed(0.6);
+		this.motor.setSpeed(0.65);
 		this.motor2.setSpeed(1.0);
 		return true;
 	}
