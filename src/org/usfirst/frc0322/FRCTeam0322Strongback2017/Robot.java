@@ -71,7 +71,7 @@ public class Robot extends IterativeRobot {
 	private TankDrive drivetrain;
 	private ContinuousRange leftSpeed, rightSpeed, driveSpeed, turnSpeed;
 	
-	private SwitchReactor lift, pickup, shooter, liftbrake;
+	private SwitchReactor liftFwd, liftRev, liftStop, pickup, shooter, liftbrake;
 	private CANTalon liftMotorCAN, shooterMotorCAN;
 	private Motor liftMotor, pickupMotor, shooterMotor, agitatorMotor, indexMotor;
 	
@@ -134,7 +134,9 @@ public class Robot extends IterativeRobot {
     	//turnSpeed = leftDriveStick.getRoll().scale(sensitivity::read);
     	
     	//Setup Switches
-    	lift = Strongback.switchReactor();
+    	liftFwd = Strongback.switchReactor();
+    	liftRev = Strongback.switchReactor();
+    	liftStop = Strongback.switchReactor();
     	pickup = Strongback.switchReactor();
     	shooter = Strongback.switchReactor();
     	liftbrake = Strongback.switchReactor();    	
@@ -159,6 +161,7 @@ public class Robot extends IterativeRobot {
     	
     	//Setup Camera
     	cameraServer = CameraServer.getInstance().startAutomaticCapture();
+    	cameraServer.setResolution(640, 360);
     	
     	/*Strongback.dataRecorder()
 		.register("Battery Volts", 1000, battery::getVoltage)
@@ -227,16 +230,17 @@ public class Robot extends IterativeRobot {
     	//drivetrain.arcade(driveSpeed.read(), turnSpeed.read());
 
     	//This section controls the lift
-    	lift.onTriggered(manipulatorStick.getA(), ()->Strongback.submit(new RunLiftMotor(liftMotor)));
-    	lift.onUntriggered(manipulatorStick.getA(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
-    	lift.onTriggered(manipulatorStick.getY(), ()->Strongback.submit(new ReverseLiftMotor(liftMotor)));
-    	lift.onUntriggered(manipulatorStick.getY(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
+    	liftFwd.onTriggered(manipulatorStick.getA(), ()->Strongback.submit(new RunLiftMotor(liftMotor)));
+    	liftFwd.onUntriggered(manipulatorStick.getA(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
+    	liftRev.onTriggered(manipulatorStick.getY(), ()->Strongback.submit(new ReverseLiftMotor(liftMotor)));
+    	liftRev.onUntriggered(manipulatorStick.getY(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
+    	liftStop.onTriggered(manipulatorStick.getLeftBumper(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
     	liftbrake.onTriggered(manipulatorStick.getRightBumper(), ()->Strongback.submit(new LiftBrakeOff(liftMotorCAN)));
     	liftbrake.onUntriggered(manipulatorStick.getRightBumper(), ()->Strongback.submit(new LiftBrakeOn(liftMotorCAN)));
     	
     	//This section controls the pickup mechanism
-    	pickup.onTriggered(manipulatorStick.getLeftBumper(), ()->Strongback.submit(new RunPickupMotor(pickupMotor)));
-    	pickup.onUntriggered(manipulatorStick.getLeftBumper(), ()->Strongback.submit(new StopPickupMotor(pickupMotor)));
+    	pickup.onTriggered(manipulatorStick.getSelect(), ()->Strongback.submit(new RunPickupMotor(pickupMotor)));
+    	pickup.onUntriggered(manipulatorStick.getSelect(), ()->Strongback.submit(new StopPickupMotor(pickupMotor)));
     	
     	//This section controls the shooter mechanism
     	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor, agitatorMotor)));
@@ -284,6 +288,8 @@ public class Robot extends IterativeRobot {
     	System.out.println("Temperature " + imu.getTemperature());
     	System.out.println("Pressure  " + imu.getBarometricPressure());
     	System.out.println();
+    	System.out.println("Left Distance " + leftEncoder.getAngle());
+    	System.out.println("Right Distance " + rightEncoder.getAngle());
     	System.out.println();
 	}
 	

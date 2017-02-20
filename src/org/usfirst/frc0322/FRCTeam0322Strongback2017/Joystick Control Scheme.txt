@@ -14,7 +14,8 @@ A = Lift Robot
 B = Stop Shooter
 X = Shoot Balls
 Y = Reverse Lift
-LB = Pickup Balls
+LB = Stop Lift
 RB = Turn off Brake 
+*Select = Pickup Balls
 
 * = Not Implemented
