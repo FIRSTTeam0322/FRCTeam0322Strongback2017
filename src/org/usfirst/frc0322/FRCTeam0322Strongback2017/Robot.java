@@ -25,13 +25,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends IterativeRobot {
-	private static int AUTON_MODE = 0;
-	private static double AUTON_SPEED = 0.60;
-	private static final double AUTON_DISTANCE = 60.0;
 	
 	private static final int LEFT_DRIVESTICK_PORT = 0;
 	private static final int RIGHT_DRIVESTICK_PORT = 1;
 	private static final int MANIPULATOR_STICK_PORT = 2;
+	
 	private static final int LF_MOTOR_PORT = 0;
 	private static final int RF_MOTOR_PORT = 1;
 	private static final int LR_MOTOR_PORT = 2;
@@ -39,7 +37,6 @@ public class Robot extends IterativeRobot {
 	private static final int PICKUP_MOTOR_PORT = 4;
 	private static final int AGITATOR_MOTOR_PORT = 5;
 	private static final int INDEX_MOTOR_PORT = 6;
-	
 	
 	private static final int LIFT_MOTOR_CAN = 1;
 	private static final int SHOOTER_MOTOR_CAN = 2;
@@ -54,16 +51,11 @@ public class Robot extends IterativeRobot {
 	public static final double ENCODER_GEAR_RATIO = 1.0;
 	public static final double GEAR_RATIO = 10.71 / 1.0;
 	public static final double FUDGE_FACTOR = 1.0;
-
-	private static final int AUTON_SWITCH_1 = 4;
-	private static final int AUTON_SWITCH_2 = 5;
-	private static final int AUTON_SWITCH_3 = 6;
-	private static final int AUTON_SWITCH_4 = 7;
+	private static final double ENCODER_PULSE_DISTANCE = 
+			Math.PI * WHEEL_DIAMETER / PULSE_PER_REVOLUTION / ENCODER_GEAR_RATIO / GEAR_RATIO * FUDGE_FACTOR;
 	
-	private static final int AUTON_SPEED_SWITCH = 0;
-	
-	private static boolean stepOneComplete, stepTwoComplete, stepThreeComplete;
-	private static double encoderPulseDistance;
+	private static final double AUTON_SPEED = 0.60;
+	private static final double AUTON_DISTANCE = 60.0;
 	
 	private FlightStick leftDriveStick, rightDriveStick;
 	private Gamepad manipulatorStick;
@@ -86,7 +78,6 @@ public class Robot extends IterativeRobot {
 	private AngleSensor autonSpeed;
 	
 	private Switch autonSwitch1, autonSwitch2, autonSwitch3, autonSwitch4;
-	private int autonModeTemp = 0;
 	
 	Command autonomousCommand;
 	SendableChooser autoChooser;
@@ -120,9 +111,8 @@ public class Robot extends IterativeRobot {
     	//Setup sensors
     	imu = new ADIS16448_IMU();
     	imu.calibrate();
-    	final double encoderPulseDistance = Math.PI * WHEEL_DIAMETER / PULSE_PER_REVOLUTION / ENCODER_GEAR_RATIO / GEAR_RATIO * FUDGE_FACTOR;
-    	leftEncoder = Hardware.AngleSensors.encoder(LEFT_ENCOODER_PORT_A, LEFT_ENCOODER_PORT_B, encoderPulseDistance);
-    	rightEncoder = Hardware.AngleSensors.encoder(RIGHT_ENCOODER_PORT_A, RIGHT_ENCOODER_PORT_B, encoderPulseDistance);
+    	leftEncoder = Hardware.AngleSensors.encoder(LEFT_ENCOODER_PORT_A, LEFT_ENCOODER_PORT_B, ENCODER_PULSE_DISTANCE);
+    	rightEncoder = Hardware.AngleSensors.encoder(RIGHT_ENCOODER_PORT_A, RIGHT_ENCOODER_PORT_B, ENCODER_PULSE_DISTANCE);
     	VoltageSensor battery = Hardware.powerPanel().getVoltageSensor();
     	CurrentSensor current = Hardware.powerPanel().getTotalCurrentSensor();
     	
@@ -143,19 +133,11 @@ public class Robot extends IterativeRobot {
     	
     	//Setup Autonomous Variables
     	autoChooser = new SendableChooser();
-    	autoChooser.addDefault("Default Program", new DoNothing());
-    	autoChooser.addObject("Drive Backward", new DriveBackward(drivetrain, AUTON_SPEED));
-    	autoChooser.addObject("Drive Forward", new DriveForward(drivetrain, AUTON_SPEED));
+    	autoChooser.addDefault("Default Program (Do Nothing)", new DoNothing());
+    	autoChooser.addObject("Drive Backward (Toward Gear Holder)", new DriveBackward(drivetrain, AUTON_SPEED));
+    	autoChooser.addObject("Drive Forward (Toward Shooter)", new DriveForward(drivetrain, AUTON_SPEED));
     	SmartDashboard.putData("Autonomous Mode Chooser", autoChooser);
-    	autonSwitch1 = Hardware.Switches.normallyOpen(AUTON_SWITCH_1);
-    	autonSwitch2 = Hardware.Switches.normallyOpen(AUTON_SWITCH_2);
-    	autonSwitch3 = Hardware.Switches.normallyOpen(AUTON_SWITCH_3);
-    	autonSwitch4 = Hardware.Switches.normallyOpen(AUTON_SWITCH_4);
-    	autonSpeed = Hardware.AngleSensors.potentiometer(AUTON_SPEED_SWITCH, 54.0);
-    	stepOneComplete = false;
-    	stepTwoComplete = false;
-    	stepThreeComplete = false;
-    	
+
     	//Setup Other Variables
     	endOfMatchReady = 0;
     	
