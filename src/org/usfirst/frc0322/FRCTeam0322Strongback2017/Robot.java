@@ -54,8 +54,10 @@ public class Robot extends IterativeRobot {
 	private static final double ENCODER_PULSE_DISTANCE = 
 			Math.PI * WHEEL_DIAMETER / PULSE_PER_REVOLUTION / ENCODER_GEAR_RATIO / GEAR_RATIO * FUDGE_FACTOR;
 	
-	private static final double AUTON_SPEED = 0.60;
-	private static final double AUTON_DISTANCE = 60.0;
+	private static double autonSpeed;
+	private static double autonDistance;
+	
+	private static double shooterSpeed;
 	
 	private FlightStick leftDriveStick, rightDriveStick;
 	private Gamepad manipulatorStick;
@@ -75,9 +77,6 @@ public class Robot extends IterativeRobot {
 	
 	private AngleSensor leftEncoder;
 	private AngleSensor rightEncoder;
-	private AngleSensor autonSpeed;
-	
-	private Switch autonSwitch1, autonSwitch2, autonSwitch3, autonSwitch4;
 	
 	Command autonomousCommand;
 	SendableChooser autoChooser;
@@ -132,10 +131,13 @@ public class Robot extends IterativeRobot {
     	liftbrake = Strongback.switchReactor();    	
     	
     	//Setup Autonomous Variables
+    	autonSpeed = SmartDashboard.getNumber("Autonomous Speed", 0.60);
+    	autonDistance = SmartDashboard.getNumber("Autonomous Distance", 60.0);
+    	
     	autoChooser = new SendableChooser();
     	autoChooser.addDefault("Default Program (Do Nothing)", new DoNothing());
-    	autoChooser.addObject("Drive Backward (Toward Gear Holder)", new DriveBackward(drivetrain, AUTON_SPEED));
-    	autoChooser.addObject("Drive Forward (Toward Shooter)", new DriveForward(drivetrain, AUTON_SPEED));
+    	autoChooser.addObject("Drive Backward (Toward Gear Holder)", new DriveBackward(drivetrain, autonSpeed));
+    	autoChooser.addObject("Drive Forward (Toward Shooter)", new DriveForward(drivetrain, autonSpeed));
     	SmartDashboard.putData("Autonomous Mode Chooser", autoChooser);
 
     	//Setup Other Variables
@@ -167,33 +169,6 @@ public class Robot extends IterativeRobot {
     
 	@Override
     public void autonomousPeriodic() {
-    	/*switch(AUTON_MODE) {
-    	case 0: Strongback.submit(new DoNothing());
-    		break;
-    	case 1:
-    		if (Math.abs(leftEncoder.getAngle()) < AUTON_DISTANCE ||
-    				Math.abs(rightEncoder.getAngle()) < AUTON_DISTANCE) {
-        		Strongback.submit(new DriveBackward(drivetrain, AUTON_SPEED));
-        	}
-    		else {
-    			drivetrain.stop();
-    			Strongback.submit(new DoNothing());
-    		}
-    		break;
-    	case 2:
-    		if (Math.abs(leftEncoder.getAngle()) < AUTON_DISTANCE ||
-    				Math.abs(rightEncoder.getAngle()) < AUTON_DISTANCE) {
-        		Strongback.submit(new DriveForward(drivetrain, AUTON_SPEED));
-        	} 
-    		else {
-    			drivetrain.stop();
-    			Strongback.submit(new DoNothing());
-    		}
-    		break;
-    	default:
-    		Strongback.submit(new DoNothing());
-    		break;
-    	}*/   	
 		updateDashboard();
 		debugPrint();
     }
@@ -225,7 +200,8 @@ public class Robot extends IterativeRobot {
     	pickup.onUntriggered(manipulatorStick.getSelect(), ()->Strongback.submit(new StopPickupMotor(pickupMotor)));
     	
     	//This section controls the shooter mechanism
-    	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor, agitatorMotor)));
+    	shooterSpeed = SmartDashboard.getNumber("Shooter Speed", 0.75);
+    	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor, agitatorMotor, shooterSpeed)));
     	shooter.onTriggered(manipulatorStick.getB(), ()->Strongback.submit(new StopShooterMotor(shooterMotor, agitatorMotor)));
 
     	endOfMatchReady = 1;
@@ -276,8 +252,6 @@ public class Robot extends IterativeRobot {
 	}
 	
 	public void updateDashboard() {
-		//SmartDashboard.putData("IMU", imu);
-		
 		SmartDashboard.putNumber("Gyro Angle", imu.getAngle());
 		SmartDashboard.putNumber("X-Axis Acceleration", imu.getAccelX());
 		SmartDashboard.putNumber("Y-Axis Acceleration", imu.getAccelY());
