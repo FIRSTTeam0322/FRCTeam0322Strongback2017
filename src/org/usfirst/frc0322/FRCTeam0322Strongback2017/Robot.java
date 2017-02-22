@@ -49,7 +49,7 @@ public class Robot extends IterativeRobot {
 	public static final double WHEEL_DIAMETER = 6;
 	public static final double PULSE_PER_REVOLUTION = 360.0;
 	public static final double ENCODER_GEAR_RATIO = 1.0;
-	public static final double GEAR_RATIO = 10.71 / 1.0;
+	public static final double GEAR_RATIO = 1.0;
 	public static final double FUDGE_FACTOR = 1.0;
 	private static final double ENCODER_PULSE_DISTANCE = 
 			Math.PI * WHEEL_DIAMETER / PULSE_PER_REVOLUTION / ENCODER_GEAR_RATIO / GEAR_RATIO * FUDGE_FACTOR;
@@ -111,7 +111,7 @@ public class Robot extends IterativeRobot {
     	//Setup sensors
     	imu = new ADIS16448_IMU();
     	imu.calibrate();
-    	leftEncoder = Hardware.AngleSensors.encoder(LEFT_ENCOODER_PORT_A, LEFT_ENCOODER_PORT_B, ENCODER_PULSE_DISTANCE);
+    	leftEncoder = AngleSensor.invert(Hardware.AngleSensors.encoder(LEFT_ENCOODER_PORT_A, LEFT_ENCOODER_PORT_B, ENCODER_PULSE_DISTANCE));
     	rightEncoder = Hardware.AngleSensors.encoder(RIGHT_ENCOODER_PORT_A, RIGHT_ENCOODER_PORT_B, ENCODER_PULSE_DISTANCE);
     	VoltageSensor battery = Hardware.powerPanel().getVoltageSensor();
     	CurrentSensor current = Hardware.powerPanel().getTotalCurrentSensor();
