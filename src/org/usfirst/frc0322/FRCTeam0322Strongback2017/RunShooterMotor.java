@@ -4,19 +4,21 @@ import org.strongback.command.*;
 import org.strongback.components.Motor;
 
 public class RunShooterMotor extends Command {
-	private final Motor motor;
-	private final Motor motor2;
+	private final Motor shooterMotor;
+	private final Motor agitatorMotor;
+	private final double shooterSpeed;
 	
-	public RunShooterMotor(Motor motor, Motor motor2) {
-		super(motor, motor2);
-		this.motor = motor;
-		this.motor2 = motor2;
+	public RunShooterMotor(Motor shooterMotor, Motor agitatorMotor, double shooterSpeed) {
+		super(shooterMotor, agitatorMotor);
+		this.shooterMotor = shooterMotor;
+		this.agitatorMotor = agitatorMotor;
+		this.shooterSpeed = shooterSpeed;
 	}
 	
 	@Override
 	public boolean execute() {
-		this.motor.setSpeed(0.75);
-		this.motor2.setSpeed(1.0);
+		this.shooterMotor.setSpeed(shooterSpeed);
+		this.agitatorMotor.setSpeed(1.0);
 		return true;
 	}
 }
