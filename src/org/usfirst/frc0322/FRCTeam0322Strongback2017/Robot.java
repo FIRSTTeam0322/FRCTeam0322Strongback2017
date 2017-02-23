@@ -140,6 +140,8 @@ public class Robot extends IterativeRobot {
     	autoChooser.addDefault("Default Program (Do Nothing)", new DoNothing());
     	autoChooser.addObject("Drive Backward (Toward Gear Holder)", new DriveBackward(drivetrain, autonSpeed));
     	autoChooser.addObject("Drive Forward (Toward Shooter)", new DriveForward(drivetrain, autonSpeed));
+    	autoChooser.addObject("Place Gear (Center)", new PlaceGearCenter(drivetrain, leftEncoder, rightEncoder, autonSpeed));
+    	autoChooser.addObject("Shoot From Left", new ShootFromNearBlue(drivetrain, shooterMotor, shooterMotorCAN, imu, leftEncoder, rightEncoder, autonSpeed));
     	SmartDashboard.putData("Autonomous Mode Chooser", autoChooser);
 
     	//Setup Other Variables
