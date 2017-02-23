@@ -21,6 +21,7 @@ public class DriveBackward extends Command {
 	
 	@Override
 	public boolean execute() {
+		if (Math.abs(this.leftEncoder.getAngle()) <= this.distance && Math.abs(this.rightEncoder.getAngle()) <= distance) {
 			this.drivetrain.tank(speed, rightSpeed);
 		} else
 			this.drivetrain.tank(0.0, 0.0);
