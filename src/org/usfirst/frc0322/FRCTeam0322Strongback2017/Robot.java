@@ -134,14 +134,16 @@ public class Robot extends IterativeRobot {
     	
     	//Setup Autonomous Variables
     	autonSpeed = SmartDashboard.getNumber("Autonomous Speed", 0.60);
-    	autonDistance = SmartDashboard.getNumber("Autonomous Distance", 60.0);
+    	autonDistance = SmartDashboard.getNumber("Autonomous Distance", 100.0);
     	
+    	//Put Auton Chooser on Dashboard
     	autoChooser = new SendableChooser();
     	autoChooser.addDefault("Default Program (Do Nothing)", new DoNothing());
-    	autoChooser.addObject("Drive Backward (Toward Gear Holder)", new DriveBackward(drivetrain, autonSpeed));
-    	autoChooser.addObject("Drive Forward (Toward Shooter)", new DriveForward(drivetrain, autonSpeed));
     	autoChooser.addObject("Place Gear (Center)", new PlaceGearCenter(drivetrain, leftEncoder, rightEncoder, autonSpeed));
-    	autoChooser.addObject("Shoot From Left", new ShootFromNearBlue(drivetrain, shooterMotor, shooterMotorCAN, imu, leftEncoder, rightEncoder, autonSpeed));
+    	autoChooser.addObject("Shoot From Near Blue", new ShootFromNearBlue(drivetrain, shooterMotor, agitatorMotor, imu, leftEncoder, rightEncoder, autonSpeed));
+    	autoChooser.addObject("Shoot From Near Red", new ShootFromNearRed(drivetrain, shooterMotor, agitatorMotor, imu, leftEncoder, rightEncoder, autonSpeed));
+    	autoChooser.addObject("Drive Backward (Toward Gear Holder)", new DriveBackward(drivetrain, leftEncoder, rightEncoder, autonSpeed, autonDistance));
+    	autoChooser.addObject("Drive Forward (Toward Ball Box)", new DriveForward(drivetrain, leftEncoder, rightEncoder, autonSpeed, autonDistance));
     	SmartDashboard.putData("Autonomous Mode Chooser", autoChooser);
 
     	//Setup Other Variables
