@@ -17,6 +17,8 @@ import org.strongback.hardware.Hardware;
 
 import com.ctre.CANTalon;
 
+import com.analog.adis16448.frc.ADIS16448_IMU;
+
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
