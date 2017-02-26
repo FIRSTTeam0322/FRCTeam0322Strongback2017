@@ -23,6 +23,7 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -56,10 +57,7 @@ public class Robot extends IterativeRobot {
 	private static final double ENCODER_PULSE_DISTANCE = 
 			Math.PI * WHEEL_DIAMETER / PULSE_PER_REVOLUTION / ENCODER_GEAR_RATIO / GEAR_RATIO * FUDGE_FACTOR;
 	
-	private static double autonSpeed;
-	private static double autonDistance;
-	
-	private static double shooterSpeed;
+	private static double autonSpeed, autonDistance, shooterSpeed;
 	
 	private FlightStick leftDriveStick, rightDriveStick;
 	private Gamepad manipulatorStick;
@@ -82,6 +80,7 @@ public class Robot extends IterativeRobot {
 	
 	Command autonomousCommand;
 	SendableChooser autoChooser;
+	Preferences robotPrefs;
 	
 	public static UsbCamera cameraServer;
 
@@ -132,9 +131,15 @@ public class Robot extends IterativeRobot {
     	shooter = Strongback.switchReactor();
     	liftbrake = Strongback.switchReactor();    	
     	
-    	//Setup Autonomous Variables
-    	autonSpeed = SmartDashboard.getNumber("Autonomous Speed", 0.60);
-    	autonDistance = SmartDashboard.getNumber("Autonomous Distance", 100.0);
+    	//Setup Robot Preferences
+    	robotPrefs = Preferences.getInstance();
+    	autonSpeed = robotPrefs.getDouble("Autonomous Speed", 0.60);
+    	autonDistance = robotPrefs.getDouble("Autonomous Distance", 100.0);
+    	shooterSpeed = robotPrefs.getDouble("Shooter Speed", 0.75);
+    	
+    	//autonSpeed = 0.60;
+    	//autonDistance = 100.0;
+    	//shooterSpeed = 75.0;
     	
     	//Put Auton Chooser on Dashboard
     	autoChooser = new SendableChooser();
@@ -206,7 +211,6 @@ public class Robot extends IterativeRobot {
     	pickup.onUntriggered(manipulatorStick.getSelect(), ()->Strongback.submit(new StopPickupMotor(pickupMotor)));
     	
     	//This section controls the shooter mechanism
-    	shooterSpeed = SmartDashboard.getNumber("Shooter Speed", 0.75);
     	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor, agitatorMotor, shooterSpeed)));
     	shooter.onTriggered(manipulatorStick.getB(), ()->Strongback.submit(new StopShooterMotor(shooterMotor, agitatorMotor)));
 
