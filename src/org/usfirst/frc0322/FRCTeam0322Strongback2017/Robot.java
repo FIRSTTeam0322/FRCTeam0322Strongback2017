@@ -75,8 +75,7 @@ public class Robot extends IterativeRobot {
 	
 	private ADIS16448_IMU imu;
 	
-	private AngleSensor leftEncoder;
-	private AngleSensor rightEncoder;
+	private AngleSensor leftEncoder, rightEncoder;
 	
 	Command autonomousCommand;
 	SendableChooser autoChooser;
