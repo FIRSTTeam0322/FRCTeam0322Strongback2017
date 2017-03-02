@@ -156,17 +156,17 @@ public class Robot extends IterativeRobot {
     	cameraServer = CameraServer.getInstance().startAutomaticCapture();
     	cameraServer.setResolution(640, 360);
     	
-    	/*Strongback.dataRecorder()
+    	Strongback.dataRecorder()
 		.register("Battery Volts", 1000, battery::getVoltage)
 		.register("Current load", 1000, current::getCurrent)
 		.register("Left Motors", leftDriveMotors)
 		.register("Right Motors", rightDriveMotors)
 		.register("LeftDriveStick", 1000, leftSpeed::read)
 		.register("RightDriveStick", 1000, rightSpeed::read)
-		.register("Drive Sensitivity", 1000, sensitivity::read);*/
+		.register("Drive Sensitivity", 1000, sensitivity::read);
         
-    	//Strongback.configure().recordNoEvents().recordDataToFile("FRC0322Java-");
-    	Strongback.configure().recordNoEvents().recordNoData();
+    	Strongback.configure().recordNoEvents().recordDataToFile("/home/lvuser/HephaestusData-<counter>.dat");
+    	//Strongback.configure().recordNoEvents().recordNoData();
     }
 	@Override
     public void autonomousInit() {
