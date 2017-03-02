@@ -7,7 +7,6 @@ import org.strongback.command.Command;
 import org.strongback.components.AngleSensor;
 import org.strongback.components.CurrentSensor;
 import org.strongback.components.Motor;
-import org.strongback.components.Switch;
 import org.strongback.components.VoltageSensor;
 import org.strongback.components.ui.ContinuousRange;
 import org.strongback.components.ui.FlightStick;
@@ -78,7 +77,7 @@ public class Robot extends IterativeRobot {
 	private AngleSensor leftEncoder, rightEncoder;
 	
 	Command autonomousCommand;
-	SendableChooser autoChooser;
+	SendableChooser<Command> autoChooser;
 	Preferences robotPrefs;
 	
 	public static UsbCamera cameraServer;
@@ -141,7 +140,7 @@ public class Robot extends IterativeRobot {
     	//shooterSpeed = 75.0;
     	
     	//Put Auton Chooser on Dashboard
-    	autoChooser = new SendableChooser();
+    	autoChooser = new SendableChooser<Command>();
     	autoChooser.addDefault("Default Program (Do Nothing)", new DoNothing());
     	autoChooser.addObject("Place Gear (Center)", new PlaceGearCenter(drivetrain, leftEncoder, rightEncoder, autonSpeed));
     	autoChooser.addObject("Shoot From Near Blue", new ShootFromNearBlue(drivetrain, shooterMotor, agitatorMotor, imu, leftEncoder, rightEncoder, autonSpeed));
