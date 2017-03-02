@@ -10,7 +10,15 @@
 	<classpathentry kind="var" path="opencv" sourcepath="opencv.sources"/>
 	<classpathentry kind="var" path="USERLIBS_DIR/navx_frc.jar"/>
 	<classpathentry kind="var" path="USERLIBS_DIR/strongback.jar"/>
-	<classpathentry kind="var" path="USERLIBS_DIR/ADIS16448.jar" sourcepath="/USERLIBSRC_DIR/ADIS16448-sources.jar"/>
-	<classpathentry kind="var" path="USERLIBS_DIR/CTRLib.jar"/>
+	<classpathentry kind="var" path="USERLIBS_DIR/ADIS16448.jar" sourcepath="/USERLIBSRC_DIR/ADIS16448-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/CCRLH85/wpilib/user/java/src/ADIS16448-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="USERLIBS_DIR/CTRLib.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/CCRLH85/wpilib/user/java/docs/CTRLib-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
