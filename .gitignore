@@ -60,6 +60,3 @@ Temporary Items
 .apdisk
 /build/
 /dist/
-/build.properties
-/build.xml
-/sysProps.xml
