@@ -129,15 +129,10 @@ public class Robot extends IterativeRobot {
     	shooter = Strongback.switchReactor();
     	liftbrake = Strongback.switchReactor();    	
     	
-    	//Setup Robot Preferences
-    	robotPrefs = Preferences.getInstance();
-    	autonSpeed = robotPrefs.getDouble("Autonomous Speed", 0.60);
-    	autonDistance = robotPrefs.getDouble("Autonomous Distance", 100.0);
-    	shooterSpeed = robotPrefs.getDouble("Shooter Speed", 0.75);
-    	
-    	//autonSpeed = 0.60;
-    	//autonDistance = 100.0;
-    	//shooterSpeed = 75.0;
+    	//Setup Defaults for Robot Preference Variables
+    	autonSpeed = 0.60;
+    	autonDistance = 100.0;
+    	shooterSpeed = 75.0;
     	
     	//Put Auton Chooser on Dashboard
     	autoChooser = new SendableChooser<Command>();
@@ -221,7 +216,17 @@ public class Robot extends IterativeRobot {
     @Override
     public void disabledInit() {
     	drivetrain.stop();
-        // Tell Strongback that the robot is disabled so it can flush and kill commands.
+    	
+    	//Setup Robot Preferences
+    	robotPrefs = Preferences.getInstance();
+    	autonSpeed = robotPrefs.getDouble("Autonomous Speed", 0.60);
+    	autonDistance = robotPrefs.getDouble("Autonomous Distance", 100.0);
+    	shooterSpeed = robotPrefs.getDouble("Shooter Speed", 0.75);
+    	SmartDashboard.putNumber("RobotPref Autonomous Speed", autonSpeed);
+    	SmartDashboard.putNumber("RobotPref Autonomous Distance", autonDistance);
+    	SmartDashboard.putNumber("RobotPref Shooter Speed", shooterSpeed);
+    	
+    	// Tell Strongback that the robot is disabled so it can flush and kill commands.
         Strongback.disable();
     }
     
