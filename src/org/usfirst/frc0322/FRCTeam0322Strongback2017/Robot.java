@@ -7,7 +7,6 @@ import org.strongback.command.Command;
 import org.strongback.components.AngleSensor;
 import org.strongback.components.CurrentSensor;
 import org.strongback.components.Motor;
-import org.strongback.components.Switch;
 import org.strongback.components.VoltageSensor;
 import org.strongback.components.ui.ContinuousRange;
 import org.strongback.components.ui.FlightStick;
@@ -23,6 +22,7 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -56,10 +56,7 @@ public class Robot extends IterativeRobot {
 	private static final double ENCODER_PULSE_DISTANCE = 
 			Math.PI * WHEEL_DIAMETER / PULSE_PER_REVOLUTION / ENCODER_GEAR_RATIO / GEAR_RATIO * FUDGE_FACTOR;
 	
-	private static double autonSpeed;
-	private static double autonDistance;
-	
-	private static double shooterSpeed;
+	private static double autonSpeed, autonDistance, shooterSpeed;
 	
 	private FlightStick leftDriveStick, rightDriveStick;
 	private Gamepad manipulatorStick;
@@ -77,11 +74,11 @@ public class Robot extends IterativeRobot {
 	
 	private ADIS16448_IMU imu;
 	
-	private AngleSensor leftEncoder;
-	private AngleSensor rightEncoder;
+	private AngleSensor leftEncoder, rightEncoder;
 	
 	Command autonomousCommand;
-	SendableChooser autoChooser;
+	SendableChooser<Command> autoChooser;
+	Preferences robotPrefs;
 	
 	public static UsbCamera cameraServer;
 
@@ -132,14 +129,19 @@ public class Robot extends IterativeRobot {
     	shooter = Strongback.switchReactor();
     	liftbrake = Strongback.switchReactor();    	
     	
-    	//Setup Autonomous Variables
-    	autonSpeed = SmartDashboard.getNumber("Autonomous Speed", 0.60);
-    	autonDistance = SmartDashboard.getNumber("Autonomous Distance", 60.0);
+    	//Setup Defaults for Robot Preference Variables
+    	autonSpeed = 0.60;
+    	autonDistance = 100.0;
+    	shooterSpeed = 75.0;
     	
-    	autoChooser = new SendableChooser();
+    	//Put Auton Chooser on Dashboard
+    	autoChooser = new SendableChooser<Command>();
     	autoChooser.addDefault("Default Program (Do Nothing)", new DoNothing());
-    	autoChooser.addObject("Drive Backward (Toward Gear Holder)", new DriveBackward(drivetrain, autonSpeed));
-    	autoChooser.addObject("Drive Forward (Toward Shooter)", new DriveForward(drivetrain, autonSpeed));
+    	autoChooser.addObject("Place Gear (Center)", new PlaceGearCenter(drivetrain, leftEncoder, rightEncoder, autonSpeed));
+    	autoChooser.addObject("Shoot From Near Blue", new ShootFromNearBlue(drivetrain, shooterMotor, agitatorMotor, imu, leftEncoder, rightEncoder, autonSpeed));
+    	autoChooser.addObject("Shoot From Near Red", new ShootFromNearRed(drivetrain, shooterMotor, agitatorMotor, imu, leftEncoder, rightEncoder, autonSpeed));
+    	autoChooser.addObject("Drive Backward (Toward Gear Holder)", new DriveBackward(drivetrain, leftEncoder, rightEncoder, autonSpeed, autonDistance));
+    	autoChooser.addObject("Drive Forward (Toward Ball Box)", new DriveForward(drivetrain, leftEncoder, rightEncoder, autonSpeed, autonDistance));
     	SmartDashboard.putData("Autonomous Mode Chooser", autoChooser);
 
     	//Setup Other Variables
@@ -149,17 +151,17 @@ public class Robot extends IterativeRobot {
     	cameraServer = CameraServer.getInstance().startAutomaticCapture();
     	cameraServer.setResolution(640, 360);
     	
-    	/*Strongback.dataRecorder()
+    	Strongback.dataRecorder()
 		.register("Battery Volts", 1000, battery::getVoltage)
 		.register("Current load", 1000, current::getCurrent)
 		.register("Left Motors", leftDriveMotors)
 		.register("Right Motors", rightDriveMotors)
 		.register("LeftDriveStick", 1000, leftSpeed::read)
 		.register("RightDriveStick", 1000, rightSpeed::read)
-		.register("Drive Sensitivity", 1000, sensitivity::read);*/
+		.register("Drive Sensitivity", 1000, sensitivity::read);
         
-    	//Strongback.configure().recordNoEvents().recordDataToFile("FRC0322Java-");
-    	Strongback.configure().recordNoEvents().recordNoData();
+    	Strongback.configure().recordNoEvents().recordDataToFile("/home/lvuser/HephaestusData-<counter>.dat");
+    	//Strongback.configure().recordNoEvents().recordNoData();
     }
 	@Override
     public void autonomousInit() {
@@ -190,9 +192,7 @@ public class Robot extends IterativeRobot {
 
     	//This section controls the lift
     	liftFwd.onTriggered(manipulatorStick.getA(), ()->Strongback.submit(new RunLiftMotor(liftMotor)));
-    	liftFwd.onUntriggered(manipulatorStick.getA(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
     	liftRev.onTriggered(manipulatorStick.getY(), ()->Strongback.submit(new ReverseLiftMotor(liftMotor)));
-    	liftRev.onUntriggered(manipulatorStick.getY(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
     	liftStop.onTriggered(manipulatorStick.getLeftBumper(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
     	liftbrake.onTriggered(manipulatorStick.getRightBumper(), ()->Strongback.submit(new LiftBrakeOff(liftMotorCAN)));
     	liftbrake.onUntriggered(manipulatorStick.getRightBumper(), ()->Strongback.submit(new LiftBrakeOn(liftMotorCAN)));
@@ -202,7 +202,6 @@ public class Robot extends IterativeRobot {
     	pickup.onUntriggered(manipulatorStick.getSelect(), ()->Strongback.submit(new StopPickupMotor(pickupMotor)));
     	
     	//This section controls the shooter mechanism
-    	shooterSpeed = SmartDashboard.getNumber("Shooter Speed", 0.75);
     	shooter.onTriggered(manipulatorStick.getX(), ()->Strongback.submit(new RunShooterMotor(shooterMotor, agitatorMotor, shooterSpeed)));
     	shooter.onTriggered(manipulatorStick.getB(), ()->Strongback.submit(new StopShooterMotor(shooterMotor, agitatorMotor)));
 
@@ -215,7 +214,17 @@ public class Robot extends IterativeRobot {
     @Override
     public void disabledInit() {
     	drivetrain.stop();
-        // Tell Strongback that the robot is disabled so it can flush and kill commands.
+    	
+    	//Setup Robot Preferences
+    	robotPrefs = Preferences.getInstance();
+    	autonSpeed = robotPrefs.getDouble("Autonomous Speed", 0.60);
+    	autonDistance = robotPrefs.getDouble("Autonomous Distance", 100.0);
+    	shooterSpeed = robotPrefs.getDouble("Shooter Speed", 0.75);
+    	SmartDashboard.putNumber("RobotPref Autonomous Speed", autonSpeed);
+    	SmartDashboard.putNumber("RobotPref Autonomous Distance", autonDistance);
+    	SmartDashboard.putNumber("RobotPref Shooter Speed", shooterSpeed);
+    	
+    	// Tell Strongback that the robot is disabled so it can flush and kill commands.
         Strongback.disable();
     }
     
