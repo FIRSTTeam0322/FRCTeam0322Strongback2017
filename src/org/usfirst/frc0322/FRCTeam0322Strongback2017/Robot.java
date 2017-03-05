@@ -134,10 +134,13 @@ public class Robot extends IterativeRobot {
     	autonDistance = 100.0;
     	shooterSpeed = 75.0;
     	
+    	//Setup roboPrefs
+    	robotPrefs = Preferences.getInstance();
+    	
     	//Put Auton Chooser on Dashboard
     	autoChooser = new SendableChooser<Command>();
     	autoChooser.addDefault("Default Program (Do Nothing)", new DoNothing());
-    	autoChooser.addObject("Place Gear (Center)", new PlaceGearCenter(drivetrain, leftEncoder, rightEncoder, autonSpeed));
+    	autoChooser.addObject("Place Gear (Center)", new PlaceGearCenter(drivetrain, leftEncoder, rightEncoder, autonSpeed, autonDistance));
     	autoChooser.addObject("Shoot From Near Blue", new ShootFromNearBlue(drivetrain, shooterMotor, agitatorMotor, imu, leftEncoder, rightEncoder, autonSpeed));
     	autoChooser.addObject("Shoot From Near Red", new ShootFromNearRed(drivetrain, shooterMotor, agitatorMotor, imu, leftEncoder, rightEncoder, autonSpeed));
     	autoChooser.addObject("Drive Backward (Toward Gear Holder)", new DriveBackward(drivetrain, leftEncoder, rightEncoder, autonSpeed, autonDistance));
@@ -151,22 +154,23 @@ public class Robot extends IterativeRobot {
     	cameraServer = CameraServer.getInstance().startAutomaticCapture();
     	cameraServer.setResolution(640, 360);
     	
-    	Strongback.dataRecorder()
+    	/*Strongback.dataRecorder()
 		.register("Battery Volts", 1000, battery::getVoltage)
 		.register("Current load", 1000, current::getCurrent)
 		.register("Left Motors", leftDriveMotors)
 		.register("Right Motors", rightDriveMotors)
 		.register("LeftDriveStick", 1000, leftSpeed::read)
 		.register("RightDriveStick", 1000, rightSpeed::read)
-		.register("Drive Sensitivity", 1000, sensitivity::read);
+		.register("Drive Sensitivity", 1000, sensitivity::read);*/
         
-    	Strongback.configure().recordNoEvents().recordDataToFile("/home/lvuser/HephaestusData-<counter>.dat");
-    	//Strongback.configure().recordNoEvents().recordNoData();
+    	//Strongback.configure().recordNoEvents().recordDataToFile("/home/lvuser/HephaestusData-<counter>.dat");
+    	Strongback.configure().recordNoEvents().recordNoData();
     }
 	@Override
     public void autonomousInit() {
         // Start Strongback functions ...
         Strongback.start();
+        getRoboPrefs();
         autonomousCommand = (Command) autoChooser.getSelected();
         autonomousCommand.execute();
     }
@@ -174,7 +178,8 @@ public class Robot extends IterativeRobot {
 	@Override
     public void autonomousPeriodic() {
 		updateDashboard();
-		debugPrint();
+		getRoboPrefs();
+		//debugPrint();
     }
     
     @Override
@@ -192,7 +197,7 @@ public class Robot extends IterativeRobot {
 
     	//This section controls the lift
     	liftFwd.onTriggered(manipulatorStick.getA(), ()->Strongback.submit(new RunLiftMotor(liftMotor)));
-    	liftRev.onTriggered(manipulatorStick.getY(), ()->Strongback.submit(new ReverseLiftMotor(liftMotor)));
+    	liftRev.onTriggered(manipulatorStick.getY(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
     	liftStop.onTriggered(manipulatorStick.getLeftBumper(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
     	liftbrake.onTriggered(manipulatorStick.getRightBumper(), ()->Strongback.submit(new LiftBrakeOff(liftMotorCAN)));
     	liftbrake.onUntriggered(manipulatorStick.getRightBumper(), ()->Strongback.submit(new LiftBrakeOn(liftMotorCAN)));
@@ -208,22 +213,13 @@ public class Robot extends IterativeRobot {
     	endOfMatchReady = 1;
     	
     	updateDashboard();
+    	getRoboPrefs();
     	debugPrint();
     }
 
     @Override
     public void disabledInit() {
-    	drivetrain.stop();
-    	
-    	//Setup Robot Preferences
-    	robotPrefs = Preferences.getInstance();
-    	autonSpeed = robotPrefs.getDouble("Autonomous Speed", 0.60);
-    	autonDistance = robotPrefs.getDouble("Autonomous Distance", 100.0);
-    	shooterSpeed = robotPrefs.getDouble("Shooter Speed", 0.75);
-    	SmartDashboard.putNumber("RobotPref Autonomous Speed", autonSpeed);
-    	SmartDashboard.putNumber("RobotPref Autonomous Distance", autonDistance);
-    	SmartDashboard.putNumber("RobotPref Shooter Speed", shooterSpeed);
-    	
+    	drivetrain.stop();    	
     	// Tell Strongback that the robot is disabled so it can flush and kill commands.
         Strongback.disable();
     }
@@ -244,7 +240,8 @@ public class Robot extends IterativeRobot {
 		}
 		liftMotorCAN.enableBrakeMode(false);
 		updateDashboard();
-		debugPrint();
+		getRoboPrefs();
+		//debugPrint();
     }
 	
 	public void debugPrint() {
@@ -272,6 +269,16 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Left Distance", leftEncoder.getAngle());
 		SmartDashboard.putNumber("Right Distance", rightEncoder.getAngle());
 		SmartDashboard.putBoolean("Lift Brake", liftMotorCAN.getBrakeEnableDuringNeutral());
+	}
+	
+	public void getRoboPrefs() {
+    	//Setup Robot Preferences
+    	autonSpeed = robotPrefs.getDouble("Autonomous Speed", 0.60);
+    	autonDistance = robotPrefs.getDouble("Autonomous Distance", 5000.0);
+    	shooterSpeed = robotPrefs.getDouble("Shooter Speed", 1.00);
+    	SmartDashboard.putNumber("RobotPref Autonomous Speed", autonSpeed);
+    	SmartDashboard.putNumber("RobotPref Autonomous Distance", autonDistance);
+    	SmartDashboard.putNumber("RobotPref Shooter Speed", shooterSpeed);
 	}
 
 }
