@@ -7,23 +7,26 @@ import org.strongback.drive.TankDrive;
 public class PlaceGearCenter extends Command {
 	private final TankDrive drivetrain;
 	private final AngleSensor leftEncoder, rightEncoder; 
-	private final double speed, leftSpeed;
+	private final double speed, rightSpeed, distance;
 	
-	public PlaceGearCenter(TankDrive drivetrain, AngleSensor leftEncoder, AngleSensor rightEncoder, double speed) {
+	public PlaceGearCenter(TankDrive drivetrain, AngleSensor leftEncoder, AngleSensor rightEncoder, double speed, double distance) {
 		super(drivetrain);
 		this.drivetrain = drivetrain;
 		this.leftEncoder = leftEncoder;
 		this.rightEncoder = rightEncoder;
 		this.speed = speed;
-		this.leftSpeed = (speed * .8);
+		this.rightSpeed = (speed * .8);
+		this.distance = (distance * -1);
 	}
 	
 	@Override
 	public boolean execute() {
-		if((Math.abs(leftEncoder.getAngle()) <= 78.5 || Math.abs(rightEncoder.getAngle()) <= 78.5))
-			this.drivetrain.tank(leftSpeed, speed);
-		else
-			this.drivetrain.tank(0.0, 0.0);
-		return true;
+		if(Math.abs(leftEncoder.getAngle()) < distance && Math.abs(rightEncoder.getAngle()) < distance) {
+			drivetrain.tank(speed, rightSpeed);
+			return false;
+		}else {
+			drivetrain.stop();
+			return true;
+		}
 	}
 }
