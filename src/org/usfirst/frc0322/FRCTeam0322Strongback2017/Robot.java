@@ -72,9 +72,9 @@ public class Robot extends IterativeRobot {
 	
 	private int endOfMatchReady;
 	
-	private ADIS16448_IMU imu;
+	public static ADIS16448_IMU imu;
 	
-	private AngleSensor leftEncoder, rightEncoder;
+	public static AngleSensor leftEncoder, rightEncoder;
 	
 	Command autonomousCommand;
 	SendableChooser<Command> autoChooser;
@@ -140,11 +140,11 @@ public class Robot extends IterativeRobot {
     	//Put Auton Chooser on Dashboard
     	autoChooser = new SendableChooser<Command>();
     	autoChooser.addDefault("Default Program (Do Nothing)", new DoNothing());
-    	autoChooser.addObject("Place Gear (Center)", new PlaceGearCenter(drivetrain, leftEncoder, rightEncoder, autonSpeed, autonDistance));
-    	autoChooser.addObject("Shoot From Near Blue", new ShootFromNearBlue(drivetrain, shooterMotor, agitatorMotor, imu, leftEncoder, rightEncoder, autonSpeed));
-    	autoChooser.addObject("Shoot From Near Red", new ShootFromNearRed(drivetrain, shooterMotor, agitatorMotor, imu, leftEncoder, rightEncoder, autonSpeed));
-    	autoChooser.addObject("Drive Backward (Toward Gear Holder)", new DriveBackward(drivetrain, leftEncoder, rightEncoder, autonSpeed, autonDistance));
-    	autoChooser.addObject("Drive Forward (Toward Ball Box)", new DriveForward(drivetrain, leftEncoder, rightEncoder, autonSpeed, autonDistance));
+    	autoChooser.addObject("Place Gear (Center)", new PlaceGearCenter(drivetrain, autonSpeed, autonDistance));
+    	autoChooser.addObject("Shoot From Near Blue", new ShootFromNearBlue(drivetrain, shooterMotor, agitatorMotor, autonSpeed));
+    	autoChooser.addObject("Shoot From Near Red", new ShootFromNearRed(drivetrain, shooterMotor, agitatorMotor, autonSpeed));
+    	autoChooser.addObject("Drive Backward (Toward Gear Holder)", new DriveBackward(drivetrain, autonSpeed, autonDistance));
+    	autoChooser.addObject("Drive Forward (Toward Ball Box)", new DriveForward(drivetrain, autonSpeed, autonDistance));
     	SmartDashboard.putData("Autonomous Mode Chooser", autoChooser);
 
     	//Setup Other Variables

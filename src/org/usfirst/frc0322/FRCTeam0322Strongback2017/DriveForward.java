@@ -1,20 +1,16 @@
 package org.usfirst.frc0322.FRCTeam0322Strongback2017;
 
 import org.strongback.command.*;
-import org.strongback.components.AngleSensor;
 import org.strongback.drive.TankDrive;
 
 public class DriveForward extends Command {
 	private final TankDrive drivetrain;
 	private final double speed, rightSpeed, distance;
-	private final AngleSensor leftEncoder, rightEncoder;
 	private int count = 0;
 	
-	public DriveForward(TankDrive drivetrain, AngleSensor leftEncoder, AngleSensor rightEncoder, double speed, double distance) {
+	public DriveForward(TankDrive drivetrain, double speed, double distance) {
 		super(drivetrain);
 		this.drivetrain = drivetrain;
-		this.leftEncoder = leftEncoder;
-		this.rightEncoder = rightEncoder;
 		this.speed = speed;
 		this.rightSpeed = (speed * .8);
 		this.distance = distance;
@@ -32,7 +28,7 @@ public class DriveForward extends Command {
 		}
 	}
 	/*public boolean execute() {
-		if(Math.abs(leftEncoder.getAngle()) < distance && Math.abs(rightEncoder.getAngle()) < distance) {
+		if(Math.abs(Robot.leftEncoder.getAngle()) < distance && Math.abs(Robot.rightEncoder.getAngle()) < distance) {
 			drivetrain.tank(-(speed), -(rightSpeed));
 			return false;
 		}else {
