@@ -19,7 +19,7 @@ public class DriveBackward extends Command {
 	@Override
 	public boolean execute() {
 		if(count < distance) {
-			drivetrain.tank(speed, rightSpeed);
+			drivetrain.tank(speed, speed);
 			count++;
 			return false;
 		}else {
