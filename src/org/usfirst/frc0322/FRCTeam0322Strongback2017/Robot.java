@@ -42,6 +42,7 @@ public class Robot extends IterativeRobot {
 	
 	private static final int LIFT_MOTOR_CAN = 1;
 	private static final int SHOOTER_MOTOR_CAN = 2;
+	private static final int SLIDE_MOTOR_CAN = 3;
 	
 	private static final int LEFT_ENCOODER_PORT_A = 0;
 	private static final int LEFT_ENCOODER_PORT_B = 1;
@@ -62,11 +63,11 @@ public class Robot extends IterativeRobot {
 	private Gamepad manipulatorStick;
 	
 	private TankDrive drivetrain;
-	private ContinuousRange leftSpeed, rightSpeed, driveSpeed, turnSpeed;
+	private ContinuousRange leftSpeed, rightSpeed, driveSpeed, turnSpeed, liftY, liftX;
 	
 	private SwitchReactor liftFwd, liftRev, liftStop, pickup, shooter, liftbrake;
-	private CANTalon liftMotorCAN, shooterMotorCAN;
-	private Motor liftMotor, pickupMotor, shooterMotor, agitatorMotor, indexMotor;
+	private CANTalon liftMotorCAN, shooterMotorCAN, slideMotorCAN;
+	private Motor liftMotor, pickupMotor, shooterMotor, slideMotor, agitatorMotor, indexMotor;
 	
 	private DriverStation ds;
 	
@@ -94,9 +95,11 @@ public class Robot extends IterativeRobot {
     	//Setup Manipulators
     	liftMotorCAN = new CANTalon(LIFT_MOTOR_CAN);
     	shooterMotorCAN = new CANTalon(SHOOTER_MOTOR_CAN);
+    	slideMotorCAN = new CANTalon(SLIDE_MOTOR_CAN);
     	
     	liftMotor = Hardware.Motors.talonSRX(liftMotorCAN);
     	shooterMotor = Hardware.Motors.talonSRX(shooterMotorCAN);
+    	slideMotor = Hardware.Motors.talonSRX(slideMotorCAN);
     	pickupMotor = Hardware.Motors.talon(PICKUP_MOTOR_PORT);
     	agitatorMotor = Hardware.Motors.talon(AGITATOR_MOTOR_PORT);
     	indexMotor = Hardware.Motors.talon(INDEX_MOTOR_PORT);
@@ -120,6 +123,10 @@ public class Robot extends IterativeRobot {
     	rightSpeed = rightDriveStick.getPitch().scale(sensitivity::read);
     	//driveSpeed = leftDriveStick.getPitch().scale(sensitivity::read);
     	//turnSpeed = leftDriveStick.getRoll().scale(sensitivity::read);
+    	
+    	//Setup ArtPrize Lift Ranges
+    	liftY = manipulatorStick.getRightY();
+    	liftX = manipulatorStick.getLeftX();
     	
     	//Setup Switches
     	liftFwd = Strongback.switchReactor();
@@ -195,12 +202,19 @@ public class Robot extends IterativeRobot {
     	drivetrain.tank(leftSpeed.read(), rightSpeed.read());
     	//drivetrain.arcade(driveSpeed.read(), turnSpeed.read());
 
+    	getRoboPrefs();
+    	
     	//This section controls the lift
     	liftFwd.onTriggered(manipulatorStick.getA(), ()->Strongback.submit(new RunLiftMotor(liftMotor)));
-    	liftRev.onTriggered(manipulatorStick.getY(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
+    	liftRev.onTriggered(manipulatorStick.getY(), ()->Strongback.submit(new ReverseLiftMotor(liftMotor)));
+    	//liftRev.onTriggered(manipulatorStick.getY(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
     	liftStop.onTriggered(manipulatorStick.getLeftBumper(), ()->Strongback.submit(new StopLiftMotor(liftMotor)));
     	liftbrake.onTriggered(manipulatorStick.getRightBumper(), ()->Strongback.submit(new LiftBrakeOff(liftMotorCAN)));
     	liftbrake.onUntriggered(manipulatorStick.getRightBumper(), ()->Strongback.submit(new LiftBrakeOn(liftMotorCAN)));
+    	
+    	//This section controls the ArtPrize lift
+    	Strongback.submit(new RunArtPrizeLiftMotor(liftMotor, liftY));
+    	Strongback.submit(new RunArtPrizeSlideMotor(slideMotor, liftX));
     	
     	//This section controls the pickup mechanism
     	pickup.onTriggered(manipulatorStick.getSelect(), ()->Strongback.submit(new RunPickupMotor(pickupMotor)));
@@ -213,8 +227,7 @@ public class Robot extends IterativeRobot {
     	endOfMatchReady = 1;
     	
     	updateDashboard();
-    	getRoboPrefs();
-    	debugPrint();
+    	//debugPrint();
     }
 
     @Override
