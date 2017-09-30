@@ -42,7 +42,8 @@ public class Robot extends IterativeRobot {
 	
 	private static final int LIFT_MOTOR_CAN = 1;
 	private static final int SHOOTER_MOTOR_CAN = 2;
-	private static final int SLIDE_MOTOR_CAN = 3;
+	private static final int SLIDE_MOTOR_LEFT_CAN = 3;
+	private static final int SLIDE_MOTOR_RIGHT_CAN = 4;
 	
 	private static final int LEFT_ENCOODER_PORT_A = 0;
 	private static final int LEFT_ENCOODER_PORT_B = 1;
@@ -66,7 +67,7 @@ public class Robot extends IterativeRobot {
 	private ContinuousRange leftSpeed, rightSpeed, driveSpeed, turnSpeed, liftY, liftX;
 	
 	private SwitchReactor liftFwd, liftRev, liftStop, pickup, shooter, liftbrake;
-	private CANTalon liftMotorCAN, shooterMotorCAN, slideMotorCAN;
+	private CANTalon liftMotorCAN, shooterMotorCAN, slideMotorLeftCAN, slideMotorRightCAN;
 	private Motor liftMotor, pickupMotor, shooterMotor, slideMotor, agitatorMotor, indexMotor;
 	
 	private DriverStation ds;
@@ -95,11 +96,13 @@ public class Robot extends IterativeRobot {
     	//Setup Manipulators
     	liftMotorCAN = new CANTalon(LIFT_MOTOR_CAN);
     	shooterMotorCAN = new CANTalon(SHOOTER_MOTOR_CAN);
-    	slideMotorCAN = new CANTalon(SLIDE_MOTOR_CAN);
+    	slideMotorLeftCAN = new CANTalon(SLIDE_MOTOR_LEFT_CAN);
+    	slideMotorRightCAN = new CANTalon(SLIDE_MOTOR_RIGHT_CAN);
     	
     	liftMotor = Hardware.Motors.talonSRX(liftMotorCAN);
     	shooterMotor = Hardware.Motors.talonSRX(shooterMotorCAN);
-    	slideMotor = Hardware.Motors.talonSRX(slideMotorCAN);
+    	slideMotor = Motor.compose(Hardware.Motors.talonSRX(slideMotorLeftCAN),
+    								Hardware.Motors.talonSRX(slideMotorRightCAN).invert());
     	pickupMotor = Hardware.Motors.talon(PICKUP_MOTOR_PORT);
     	agitatorMotor = Hardware.Motors.talon(AGITATOR_MOTOR_PORT);
     	indexMotor = Hardware.Motors.talon(INDEX_MOTOR_PORT);
