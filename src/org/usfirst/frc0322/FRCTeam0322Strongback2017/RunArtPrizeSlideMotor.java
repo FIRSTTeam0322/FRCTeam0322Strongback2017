@@ -16,7 +16,7 @@ public class RunArtPrizeSlideMotor extends Command {
 	
 	@Override
 	public boolean execute() {
-		this.motor.setSpeed(this.speed.read());
+		this.motor.setSpeed(this.speed.read() * 0.5);
 		return true;
 	}
 }
