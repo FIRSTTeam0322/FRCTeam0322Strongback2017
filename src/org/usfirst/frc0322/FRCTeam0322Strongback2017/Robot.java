@@ -102,7 +102,7 @@ public class Robot extends IterativeRobot {
     	liftMotor = Hardware.Motors.talonSRX(liftMotorCAN);
     	shooterMotor = Hardware.Motors.talonSRX(shooterMotorCAN);
     	slideMotor = Motor.compose(Hardware.Motors.talonSRX(slideMotorLeftCAN),
-    								Hardware.Motors.talonSRX(slideMotorRightCAN).invert());
+    								Hardware.Motors.talonSRX(slideMotorRightCAN));
     	pickupMotor = Hardware.Motors.talon(PICKUP_MOTOR_PORT);
     	agitatorMotor = Hardware.Motors.talon(AGITATOR_MOTOR_PORT);
     	indexMotor = Hardware.Motors.talon(INDEX_MOTOR_PORT);
